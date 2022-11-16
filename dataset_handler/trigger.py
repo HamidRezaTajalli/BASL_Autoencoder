@@ -264,6 +264,7 @@ def get_backdoor_train_dataset(dataset, trigger_obj, trig_ds, samples_percentage
     backdoored_ds = []
     samples_index = []
     insert = None
+    trigger = trigger_obj.crafted_trigger
     trigger_samples = (samples_percentage * len(dataset)) // 100
     samples_index = np.random.choice(len(dataset), size=trigger_samples, replace=False)
     for ind, item in enumerate(dataset):

@@ -4,19 +4,24 @@ import matplotlib.pyplot as plt
 import torch.nn as nn
 import torch.optim as optim
 import torch.utils.data
+from torch.utils.data import TensorDataset
 from torchsummary import summary
 
 import models
 from dataset_handler import cifar10, fmnist, mnist
+from dataset_handler.trigger import get_bd_set, GenerateTrigger
 from helper import EarlyStopping
 
 import csv
 import gc
 
 import torch
+
 torch.manual_seed(47)
 import numpy as np
+
 np.random.seed(47)
+
 
 class SLTrainAndValidation:
     def __init__(self, dataloaders, models, loss_fns, optimizers, lr_schedulers, early_stopping):
@@ -379,9 +384,9 @@ class SLTrainAndValidation:
             for phase_batch_num, phase_data in enumerate(self.dataloaders[phase][ds_dicts[phase]]):
                 inputs[phase], labels[phase] = phase_data[0].to(self.device), phase_data[1].to(self.device)
 
-                trigger_samples = (smpl_prctg * len(dataset)) // 100
+                trigger_samples = (smpl_prctg * len(inputs[phase])) // 100
                 samples_index = torch.from_numpy(
-                    np.random.choice(len(dataset), size=trigger_samples, replace=False)).to(self.device).detach()
+                    np.random.choice(len(inputs[phase]), size=trigger_samples, replace=False)).to(self.device).detach()
                 labels[phase][samples_index] = bd_label
 
                 for name, optimizer in self.optimizers.items():
@@ -655,13 +660,13 @@ def sl_training_procedure(tp_name, dataset, arch_name, cut_layer, base_path, exp
 
     device = torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu')
 
-    # ds_load_dict = {'cifar10': cifar10, 'fmnist': fmnist, 'mnist': mnist}
+    ds_load_dict = {'cifar10': cifar10, 'fmnist': fmnist, 'mnist': mnist}
     trigger_obj = GenerateTrigger((8, 8), pos_label='upper-mid', dataset=dataset, shape='square')
     dataloaders, classes_names = ds_load_dict[dataset].get_dataloaders_backdoor(batch_size=batch_size,
-                                                          train_ds_num=num_clients + 1,
-                                                          drop_last=False, is_shuffle=True,
-                                                          target_label=bd_label,
-                                                          trigger_obj=trigger_obj)
+                                                                                train_ds_num=num_clients + 1,
+                                                                                drop_last=False, is_shuffle=True,
+                                                                                target_label=bd_label,
+                                                                                trigger_obj=trigger_obj)
 
     input_batch_shape = tuple(dataloaders['validation'].dataset[0][0].size())
 
@@ -678,13 +683,13 @@ def sl_training_procedure(tp_name, dataset, arch_name, cut_layer, base_path, exp
     # summary(model=client_model, input_size=input_batch_shape, batch_size=dataloaders['validation'].batch_size)
 
     malicious_client_model1 = models.get_model(arch_name=arch_name, dataset=dataset, model_type='client',
-                                        cut_layer=cut_layer).to(device)
+                                               cut_layer=cut_layer).to(device)
     print('malicious client model 1 object is successfully built, summary: \n')
     summary(model=malicious_client_model1, input_size=input_batch_shape,
             batch_size=dataloaders['validation'].batch_size)
 
     malicious_client_model2 = models.get_model(arch_name=arch_name, dataset=dataset, model_type='client',
-                                        cut_layer=cut_layer).to(device)
+                                               cut_layer=cut_layer).to(device)
     print('malicious client model 2 object is successfully built, summary: \n')
     summary(model=malicious_client_model2, input_size=input_batch_shape,
             batch_size=dataloaders['validation'].batch_size)
@@ -693,7 +698,7 @@ def sl_training_procedure(tp_name, dataset, arch_name, cut_layer, base_path, exp
     mal_out_sh = malicious_client_model1(
         torch.rand(size=(dataloaders['validation'].batch_size,) + input_batch_shape).to(device)).size()
     aut_enc_model = models.Autoencoder(base_channel_size=32, latent_dim=32 * 32, num_input_channels=mal_out_sh[1],
-                                width=mal_out_sh[2], height=mal_out_sh[3]).to(device)
+                                       width=mal_out_sh[2], height=mal_out_sh[3]).to(device)
     aut_input_size = malicious_client_model1(
         torch.rand(size=(dataloaders['validation'].batch_size,) + input_batch_shape).to(device)).size()[1:]
     summary(model=aut_enc_model, input_size=aut_input_size, batch_size=dataloaders['validation'].batch_size)
@@ -714,7 +719,7 @@ def sl_training_procedure(tp_name, dataset, arch_name, cut_layer, base_path, exp
             batch_size=dataloaders['validation'].batch_size)
 
     server_model2 = models.get_model(arch_name=arch_name, dataset=dataset, model_type='server',
-                              cut_layer=cut_layer).to(device)
+                                     cut_layer=cut_layer).to(device)
     print('server model 2 object is successfully built, summary: \n')
 
     summary(model=server_model2, input_size=input_batch_shape,
@@ -742,7 +747,7 @@ def sl_training_procedure(tp_name, dataset, arch_name, cut_layer, base_path, exp
                   'malicious2': malicious_client2_optimizer}
     if arch_name.upper() == "RESNET9" or arch_name.upper() == "RESNET18":
         client_lr_schedulers = [optim.lr_scheduler.LambdaLR(optimizer=client_optimizers[i],
-                                                            lr_lambda=lambda item: lr_schedule_resnet(
+                                                            lr_lambda=lambda item: models.lr_schedule_resnet(
                                                                 item))
 
                                 for i in range(num_clients)]
@@ -795,8 +800,8 @@ def sl_training_procedure(tp_name, dataset, arch_name, cut_layer, base_path, exp
     early_stopping = EarlyStopping(patience=patience, verbose=True)
 
     trainer = SLTrainAndValidation(dataloaders=dataloaders, models=my_models,
-                                           loss_fns=criterions, optimizers=optimizers,
-                                           lr_schedulers=lr_schedulers, early_stopping=early_stopping)
+                                   loss_fns=criterions, optimizers=optimizers,
+                                   lr_schedulers=lr_schedulers, early_stopping=early_stopping)
 
     stp1_val_loss, stp1_val_crcts = None, None
     smsh_Dataset = None
@@ -854,7 +859,6 @@ def sl_training_procedure(tp_name, dataset, arch_name, cut_layer, base_path, exp
     ax.legend(loc='upper left')
     fig.savefig(f'{plots_path}/Accuracy_{experiment_name}_firststep.jpeg', dpi=500)
 
-
     aut_train_loss, aut_val_loss = None, None
     aut_history = {'train': [], 'validation': []}
     num_epochs = 180 if dataset.lower() == 'cifar10' else 100
@@ -889,7 +893,6 @@ def sl_training_procedure(tp_name, dataset, arch_name, cut_layer, base_path, exp
     history = {'loss': loss_history, 'corrects': corrects_history}
     train_loss, train_corrects = None, None
     inject = not tb_inj
-
 
     for epoch in range(num_epochs):
         print('-' * 60)
