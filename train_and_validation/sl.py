@@ -841,6 +841,7 @@ def sl_training_procedure(tp_name, dataset, arch_name, cut_layer, base_path, exp
     ax.set_ylabel('Loss')
     ax.set_title('Step1 Loss Plot for training primayr model (mal_client and server) and gathering DS')
     ax.legend(loc='upper left')
+    fig.savefig(f'{plots_path}/Loss_{experiment_name}_firststep.jpeg', dpi=500)
 
     fig, ax = plt.subplots(figsize=(12.8, 7.2), constrained_layout=True)
     ax.plot(step1_history['clean_corrects'], label='Step1 clean Train Accuracy')
@@ -851,8 +852,8 @@ def sl_training_procedure(tp_name, dataset, arch_name, cut_layer, base_path, exp
     ax.set_ylabel('Accuracy')
     ax.set_title('Step1 Accuracy Plot for training primayr model (mal_client and server) and gathering DS')
     ax.legend(loc='upper left')
+    fig.savefig(f'{plots_path}/Accuracy_{experiment_name}_firststep.jpeg', dpi=500)
 
-    # Ta inja pish amadam. plot ro baraye ds tak noghte tarrahi kon.
 
     aut_train_loss, aut_val_loss = None, None
     aut_history = {'train': [], 'validation': []}
@@ -879,6 +880,7 @@ def sl_training_procedure(tp_name, dataset, arch_name, cut_layer, base_path, exp
     ax.set_ylabel('Loss')
     ax.set_title('aut training Loss Plot')
     ax.legend(loc='upper left')
+    fig.savefig(f'{plots_path}/Loss_{experiment_name}_autoencoder.jpeg', dpi=500)
 
     num_epochs = 140 if dataset.lower() == 'cifar10' else 100
     loss_history = {'train': [], 'backdoored_train': [], 'validation': [], 'test': [], 'backdoor_test': []}
@@ -886,7 +888,8 @@ def sl_training_procedure(tp_name, dataset, arch_name, cut_layer, base_path, exp
 
     history = {'loss': loss_history, 'corrects': corrects_history}
     train_loss, train_corrects = None, None
-    inject = True
+    inject = not tb_inj
+
 
     for epoch in range(num_epochs):
         print('-' * 60)
@@ -932,12 +935,13 @@ def sl_training_procedure(tp_name, dataset, arch_name, cut_layer, base_path, exp
                 inject = True
 
     # corrects_max = {key: max(value) for key, value in corrects_history.items()}
-    # with open(file=csv_path, mode='a') as file:
-    #     csv_writer = csv.writer(file)
-    #     csv_writer.writerow([attack_name, exp_num, arch_name, trig_ds,
-    #                          trig_shape, trig_pos, trig_size,
-    #                          trig_samples, bd_label, corrects_max['train'], corrects_max['validation'],
-    #                          corrects_max['test'], corrects_max['backdoor_test']])
+    corrects_max = {key: value[-1] for key, value in corrects_history.items()}
+    with open(file=csv_path, mode='a') as file:
+        csv_writer = csv.writer(file)
+        csv_writer.writerow(
+            [exp_num, arch_name, dataset, num_clients, cut_layer, tb_inj, corrects_max['train'],
+             corrects_max['validation'],
+             corrects_max['test'], corrects_max['backdoor_test']])
 
     minposs = loss_history['validation'].index(min(loss_history['validation']))
 
@@ -952,7 +956,7 @@ def sl_training_procedure(tp_name, dataset, arch_name, cut_layer, base_path, exp
     ax.set_ylabel('Loss')
     ax.set_title('Loss_plot for final model training')
     ax.legend(loc='upper left')
-    # fig.savefig(f'{plots_path}/Loss_{experiment_name}.jpeg', dpi=500)
+    fig.savefig(f'{plots_path}/Loss_{experiment_name}_finalstep.jpeg', dpi=500)
 
     fig, ax = plt.subplots(figsize=(12.8, 7.2), constrained_layout=True)
     ax.plot(corrects_history['train'], label='Train Accuracy')
@@ -963,7 +967,7 @@ def sl_training_procedure(tp_name, dataset, arch_name, cut_layer, base_path, exp
     ax.set_ylabel('Accuracy')
     ax.set_title('Accuracy_plot for final model training')
     ax.legend(loc='upper left')
-    # fig.savefig(f'{plots_path}/Accuracy_{experiment_name}.jpeg', dpi=500)
+    fig.savefig(f'{plots_path}/Accuracy_{experiment_name}_finalstep.jpeg', dpi=500)
 
     # iterator = iter(dataloaders['validation'])
 
