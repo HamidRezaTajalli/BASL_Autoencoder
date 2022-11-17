@@ -549,6 +549,7 @@ class Encoder(nn.Module):
         """
         super().__init__()
         c_hid = base_channel_size
+        linear_multiplicand = (height // 8) + 1 if height % 8 != 0 else height // 8
         self.net_list = nn.ModuleList([
             nn.Conv2d(num_input_channels, c_hid, kernel_size=3, padding=1, stride=2),  # 32x32 => 16x16
             act_fn(),
@@ -561,7 +562,7 @@ class Encoder(nn.Module):
             nn.Conv2d(2 * c_hid, 2 * c_hid, kernel_size=3, padding=1, stride=2),  # 8x8 => 4x4
             act_fn(),
             nn.Flatten(),  # Image grid to single feature vector
-            nn.Linear(2 * int((width / 8) ** 2) * c_hid, latent_dim)
+            nn.Linear(2 * int(linear_multiplicand ** 2) * c_hid, latent_dim)
         ])
 
         self.net = nn.Sequential(
@@ -576,7 +577,7 @@ class Encoder(nn.Module):
             nn.Conv2d(2 * c_hid, 2 * c_hid, kernel_size=3, padding=1, stride=2),  # 8x8 => 4x4
             act_fn(),
             nn.Flatten(),  # Image grid to single feature vector
-            nn.Linear(2 * int((height / 8) ** 2) * c_hid, latent_dim)
+            nn.Linear(2 * int(linear_multiplicand ** 2) * c_hid, latent_dim)
         )
 
     def forward(self, x):
@@ -607,9 +608,12 @@ class Decoder(nn.Module):
         super().__init__()
         self.width = width
         self.height = height
+        self.linear_multiplicand = (height // 8) + 1 if height % 8 != 0 else height // 8
         c_hid = base_channel_size
+        k2 = 3 if height % 8 == 0 else 2
+        out_pad2 = 1 if height % 8 == 0 else 0
         self.linear = nn.Sequential(
-            nn.Linear(latent_dim, 2 * int((height / 8) ** 2) * c_hid),
+            nn.Linear(latent_dim, 2 * int(self.linear_multiplicand ** 2) * c_hid),
             act_fn()
         )
         self.net = nn.Sequential(
@@ -618,7 +622,7 @@ class Decoder(nn.Module):
             act_fn(),
             nn.Conv2d(2 * c_hid, 2 * c_hid, kernel_size=3, padding=1),
             act_fn(),
-            nn.ConvTranspose2d(2 * c_hid, c_hid, kernel_size=3, output_padding=1, padding=1, stride=2),  # 8x8 => 16x16
+            nn.ConvTranspose2d(2 * c_hid, c_hid, kernel_size=k2, output_padding=out_pad2, padding=1, stride=2),  # 8x8 => 16x16
             act_fn(),
             nn.Conv2d(c_hid, c_hid, kernel_size=3, padding=1),
             act_fn(),
@@ -630,7 +634,7 @@ class Decoder(nn.Module):
     def forward(self, x):
         x = self.linear(x)
         # print(x.size())
-        x = x.reshape(x.shape[0], -1, int(self.height / 8), int(self.width / 8))
+        x = x.reshape(x.shape[0], -1, self.linear_multiplicand, self.linear_multiplicand)
         # print(x.size())
         x = self.net(x)
         return x
