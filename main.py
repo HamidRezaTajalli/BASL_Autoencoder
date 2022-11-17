@@ -3,7 +3,7 @@ from pathlib import Path
 from train_and_validation import sl, sl_simple
 
 
-parser = argparse.ArgumentParser(description='BASL')
+parser = argparse.ArgumentParser(description='BASL_Autoencoder')
 parser.add_argument('--dataname', type=str, default='mnist',
                     choices=['mnist', 'cifar10', 'fmnist'],
                     help='The dataset to use')
@@ -46,7 +46,7 @@ def main():
     arch_name = args.model
     bd_opacity = 1.0
     base_path = args.save_path
-    tp_name = 'BASL1'
+    tp_name = 'BASL_Autoencoder'
     cut_layer = args.cutlayer
     batch_size = args.batch_size
     num_clients = args.num_clients
@@ -56,9 +56,10 @@ def main():
     # sl_simple.sl_training_procedure(tp_name=tp_name, dataset=dataset, arch_name=arch_name, cut_layer=cut_layer,
     #                                 base_path=base_path, exp_num=exp_num, batch_size=batch_size, num_clients=num_clients)
 
-    sl.sl_training_procedure(tp_name=tp_name, dataset=dataset, arch_name=arch_name, cut_layer=cut_layer,
-                          base_path=base_path, exp_num=exp_num, batch_size=batch_size, alpha_fixed=alpha_fixed,
-                          num_clients=num_clients, bd_label=bd_label, tb_inj=tb_inj)
+    sl.sl_training_procedure(tp_name=tp_name, dataset=dataset, arch_name=arch_name, cut_layer=cut_layer, base_path=base_path, exp_num=exp_num, batch_size=batch_size,
+                             alpha_fixed=alpha_fixed, num_clients=num_clients, bd_label=bd_label, tb_inj=tb_inj)
+
+
 
 
 if __name__ == '__main__':
