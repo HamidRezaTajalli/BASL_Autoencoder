@@ -4,7 +4,7 @@ from train_and_validation import sl, sl_simple
 
 
 parser = argparse.ArgumentParser(description='BASL_Autoencoder')
-parser.add_argument('--dataname', type=str, default='mnist',
+parser.add_argument('--dataname', type=str, default='fmnist',
                     choices=['mnist', 'cifar10', 'fmnist'],
                     help='The dataset to use')
 parser.add_argument('--model', type=str, default='resnet9', choices=[
