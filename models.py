@@ -489,7 +489,7 @@ class ResNet9(nn.Module):
         self.classifier = nn.Sequential(
             nn.MaxPool2d(4 if self.input_in_channels == 3 else 2, stride=4 if self.input_in_channels == 3 else 1),
             nn.Flatten(),
-            nn.Linear(in_features=1152 if input_in_channels == 1 else 512, out_features=num_classes))
+            nn.Linear(in_features=2048 if input_in_channels == 1 else 512, out_features=num_classes))
 
         self.layers.append(self.classifier)
         self.model = nn.Sequential(*self.layers)
