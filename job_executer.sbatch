@@ -17,18 +17,18 @@
 #SBATCH --mem=16000
 
 #Job name
-#SBATCH --job-name=ExpBkd_MODELNAME_Cora_Clean
+##SBATCH --job-name=ExpBkd_MODELNAME_Cora_Clean
 
 #Output file
-#SBATCH --output=/tudelft.net/staff-umbrella/GS/Graph_Neural_Networks/Explanability_bkd_gnn_private/outputs/%x.%j.out
+##SBATCH --output=/tudelft.net/staff-umbrella/GS/Graph_Neural_Networks/Explanability_bkd_gnn_private/outputs/%x.%j.out
 
 module use /opt/insy/modulefiles
 module load cuda/11.2 cudnn/11.2-8.1.1.33 miniconda/3.9
 module list
+conda activate projects
 
 previous=$(nvidia-smi --query-accounted-apps=gpu_utilization,mem_utilization,max_memory_usage,time --format=csv | tail -n +2)
 
-conda activate projects
 
 datasets=("mnist" "cifar10" "fmnist")
 models=("resnet9" "lenet" "stripnet")
