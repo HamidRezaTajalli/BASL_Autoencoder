@@ -17,8 +17,9 @@
 #SBATCH --mem=16000
 
 module use /opt/insy/modulefiles
-module load cuda/11.2 cudnn/11.2-8.1.1.33
+module load cuda/11.2 cudnn/11.2-8.1.1.33 miniconda/3.9
 module list
+
 
 previous=$(nvidia-smi --query-accounted-apps=gpu_utilization,mem_utilization,max_memory_usage,time --format=csv | tail -n +2)
 
@@ -52,4 +53,3 @@ done
 
 nvidia-smi --query-accounted-apps=gpu_utilization,mem_utilization,max_memory_usage,time --format=csv | grep -v -F "$previous"
 
-curl –O https://repo.anaconda.com/archive/Anaconda3-2022.10-Linux-x86_64.sh
