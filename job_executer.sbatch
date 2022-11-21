@@ -42,7 +42,7 @@ do
             do
                 for exp_num in $(seq 1 $num_of_exp);
                 do
-                    python main.py --dataname $dataset --model $model --exp_num $exp_num --cutlayer $cut_layer --num_clients $num_clients --fixed_alpha
+                    srun python3 ./BASL_Autoencoder/main.py --dataname $dataset --model $model --exp_num $exp_num --cutlayer $cut_layer --num_clients $num_clients --fixed_alpha
                 done
             done
         done
