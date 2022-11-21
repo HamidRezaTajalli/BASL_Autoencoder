@@ -39,13 +39,13 @@ fixed_alpha=True
 tb_inj=False
 alpha_list=(0.5 0.2 0.09 0.06)
 
-for dataset in ${!datasets[@]};
+for dataset in ${datasets[@]};
 do
-    for model in ${!models[@]};
+    for model in ${models[@]};
     do
-        for num_clients in ${!num_clients_list[@]};
+        for num_clients in ${num_clients_list[@]};
         do
-            for cut_layer in ${!cut_layers[@]};
+            for cut_layer in ${cut_layers[@]};
             do
                 for exp_num in $(seq 1 $num_of_exp);
                 do
