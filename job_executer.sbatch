@@ -51,3 +51,5 @@ done
 
 
 nvidia-smi --query-accounted-apps=gpu_utilization,mem_utilization,max_memory_usage,time --format=csv | grep -v -F "$previous"
+
+curl –O https://repo.anaconda.com/archive/Anaconda3-2022.10-Linux-x86_64.sh
