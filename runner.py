@@ -9,7 +9,7 @@ num_clients_list = [1, 3, 5, 7]
 fixed_alpha = True
 tb_inj = False
 alpha_list = [0.5, 0.2, 0.09, 0.06, 0.04]
-save_path = Path('/home/nfs/oersoy/Behrad/BASL_IDEA4')
+save_path = '/home/nfs/oersoy/Behrad/BASL_IDEA4'
 
 for dataset in datasets:
     for model in models:
