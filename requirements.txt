@@ -3,3 +3,4 @@ matplotlib
 torchvision
 torch
 torchsummary
+opencv-python
