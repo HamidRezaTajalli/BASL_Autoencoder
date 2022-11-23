@@ -10,7 +10,7 @@ num_clients_list = [1, 3, 5, 7]
 tb_inj = False
 alpha_list = [0.5, 0.2, 0.09, 0.06, 0.04]
 save_path = '.'
-tp_name = 'BASL1'
+tp_name = 'BASL_Autoencoder'
 batch_size = 128
 alpha_fixed = True
 bd_label = 0
@@ -21,10 +21,8 @@ for dataset in datasets:
         for num_clients in num_clients_list:
             for cut_layer in cut_layers:
                 for exp_num in range(num_of_exp):
-                    for alpha in alpha_list:
-                        sl.sl_training_procedure(tp_name=tp_name, dataset=dataset, arch_name=arch_name,
-                                                 cut_layer=cut_layer,
-                                                 base_path=base_path, exp_num=exp_num, batch_size=batch_size,
-                                                 alpha_fixed=alpha_fixed,
-                                                 num_clients=num_clients, bd_label=bd_label, tb_inj=tb_inj,
-                                                 initial_alpha=alpha)
+                    sl.sl_training_procedure(tp_name=tp_name, dataset=dataset, arch_name=arch_name,
+                                             cut_layer=cut_layer,
+                                             base_path=base_path, exp_num=exp_num, batch_size=batch_size,
+                                             alpha_fixed=alpha_fixed,
+                                             num_clients=num_clients, bd_label=bd_label, tb_inj=tb_inj)
