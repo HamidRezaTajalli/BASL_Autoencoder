@@ -12,9 +12,9 @@
 # this is a hard limit
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=1
-#SBATCH --gres=gpu:1
-
-#SBATCH --mem=16000
+##SBATCH --gres=gpu:1
+#SBATCH --gres=gpu:a40:1
+#SBATCH --mem=16384
 
 #Job name
 ##SBATCH --job-name=ExpBkd_MODELNAME_Cora_Clean
