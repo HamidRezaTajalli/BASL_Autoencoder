@@ -260,7 +260,7 @@ class SLTrainAndValidation:
         print(print_string)
 
         return {'clean': epoch_loss1, 'bd': epoch_loss2}, {'clean': epoch_corrects1, 'bd': epoch_corrects2}, {
-            'clean': clean_smsh, 'bd': bd_smsh}
+            'clean': clean_smsh.detach().cpu(), 'bd': bd_smsh.detach().cpu()}
 
     def aut_train(self, aut_dataloader):
 
@@ -887,8 +887,8 @@ def sl_training_procedure(tp_name, dataset, arch_name, cut_layer, base_path, exp
     fig.savefig(f'{plots_path}/Loss_{experiment_name}_autoencoder.jpeg', dpi=500)
 
     num_epochs = 140 if dataset.lower() == 'cifar10' else 100
-    loss_history = {'train': [], 'backdoored_train': [], 'validation': [], 'test': [], 'backdoor_test': []}
-    corrects_history = {'train': [], 'backdoored_train': [], 'validation': [], 'test': [], 'backdoor_test': []}
+    loss_history = {'train': [], 'validation': [], 'test': [], 'backdoor_test': []}
+    corrects_history = {'train': [], 'validation': [], 'test': [], 'backdoor_test': []}
 
     history = {'loss': loss_history, 'corrects': corrects_history}
     train_loss, train_corrects = None, None
