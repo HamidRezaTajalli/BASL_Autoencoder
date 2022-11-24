@@ -990,11 +990,20 @@ def sl_training_procedure(tp_name, dataset, arch_name, cut_layer, base_path, exp
     # print(model_out[4])
     # print(mal_out[4])
 
+    del smsh_Dataset
     for model in my_models['client']:
         del model
     for model in my_models.values():
         del model
     del my_models
+    for opti in optimizers.values():
+        del opti
+    del optimizers
+    for schedul in lr_schedulers.values():
+        del schedul
+    del lr_schedulers
     del dataloaders
+    del aut_dataloader
     del trainer
+    del trigger_obj
     gc.collect()
