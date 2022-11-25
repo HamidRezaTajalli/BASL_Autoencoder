@@ -13,7 +13,7 @@
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=1
 #SBATCH --gres=gpu:v100:1
-#SBATCH --mem=16384
+#SBATCH --mem=32768
 
 #Job name
 ##SBATCH --job-name=ExpBkd_MODELNAME_Cora_Clean
