@@ -608,6 +608,9 @@ class Decoder(nn.Module):
         c_hid = base_channel_size
         k2 = 3 if height % 8 == 0 else 2
         out_pad2 = 1 if height % 8 == 0 else 0
+        out_pad2 = 1 if height == 14 else out_pad2
+        out_pad2 = 1 if height == 10 else out_pad2
+        pad2 = 2 if height == 10 else 1
         self.linear = nn.Sequential(
             nn.Linear(latent_dim, 2 * int(self.linear_multiplicand ** 2) * c_hid),
             act_fn()
@@ -618,7 +621,7 @@ class Decoder(nn.Module):
             act_fn(),
             nn.Conv2d(2 * c_hid, 2 * c_hid, kernel_size=3, padding=1),
             act_fn(),
-            nn.ConvTranspose2d(2 * c_hid, c_hid, kernel_size=k2, output_padding=out_pad2, padding=1, stride=2),  # 8x8 => 16x16
+            nn.ConvTranspose2d(2 * c_hid, c_hid, kernel_size=k2, output_padding=out_pad2, padding=pad2, stride=2),  # 8x8 => 16x16
             act_fn(),
             nn.Conv2d(c_hid, c_hid, kernel_size=3, padding=1),
             act_fn(),
