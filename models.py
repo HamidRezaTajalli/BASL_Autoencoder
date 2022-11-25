@@ -636,6 +636,7 @@ class Decoder(nn.Module):
         x = x.reshape(x.shape[0], -1, self.linear_multiplicand, self.linear_multiplicand)
         # print(x.size())
         x = self.net(x)
+        #print(x.size())
         return x
 
 
