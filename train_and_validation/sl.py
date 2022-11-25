@@ -699,9 +699,14 @@ def sl_training_procedure(tp_name, dataset, arch_name, cut_layer, base_path, exp
         torch.rand(size=(dataloaders['validation'].batch_size,) + input_batch_shape).to(device)).size()
     aut_enc_model = models.Autoencoder(base_channel_size=32, latent_dim=32 * 32, num_input_channels=mal_out_sh[1],
                                        width=mal_out_sh[2], height=mal_out_sh[3]).to(device)
-    aut_input_size = malicious_client_model1(
-        torch.rand(size=(dataloaders['validation'].batch_size,) + input_batch_shape).to(device)).size()[1:]
+    sample_cli_out = malicious_client_model1(
+        torch.rand(size=(dataloaders['validation'].batch_size,) + input_batch_shape).to(device))
+    aut_input_size = sample_cli_out.size()[1:]
+    print('Autoencoder model is successfully built, summary: \n')
     summary(model=aut_enc_model, input_size=aut_input_size, batch_size=dataloaders['validation'].batch_size)
+    if aut_enc_model(sample_cli_out).size() != sample_cli_out.size():
+        raise ValueError(
+            f'Autoencoder input and output shapes are not the same:\n feed input-->{sample_cli_out.size()} - received output-->{aut_enc_model(sample_cli_out).size()}')
 
     # aut_enc_model = Autoencoder(base_channel_size=32, latent_dim=32*32, num_input_channels=3, width=32, height=32).to(device)
     # aut_input_size = malicious_client_model(
